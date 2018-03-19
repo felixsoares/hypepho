@@ -27,6 +27,7 @@ class MainActivity : AppCompatActivity() {
     private val FRAGMENT_TAG = "camera"
     private val CAMERA_REQUEST = 1888
     private var flashActive = false
+    private var isFront = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -71,12 +72,19 @@ class MainActivity : AppCompatActivity() {
                 }
 
                 override fun onPhotoTaken(bytes: ByteArray?, filePath: String?) {
-                    val bundle = Bundle()
-                    bundle.putString(ImageActivity.FILE_PATH, filePath)
+                    progress.show()
 
-                    val intent = Intent(this@MainActivity, ImageActivity::class.java)
-                    intent.putExtras(bundle)
-                    startActivityForResult(intent, REQUEST_PREVIEW_CODE)
+                    Handler().postDelayed({
+                        val bundle = Bundle()
+                        bundle.putString(ImageActivity.FILE_PATH, filePath)
+                        bundle.putBoolean(ImageActivity.PHOTO_FRONT, isFront)
+
+                        val intent = Intent(this@MainActivity, ImageActivity::class.java)
+                        intent.putExtras(bundle)
+                        startActivityForResult(intent, REQUEST_PREVIEW_CODE)
+
+                        progress.hide()
+                    }, 1000)
                 }
             }, getExternalFilesDir(Environment.DIRECTORY_PICTURES).path + "/hypepho", UUID.randomUUID().toString())
         }
@@ -85,6 +93,7 @@ class MainActivity : AppCompatActivity() {
             Handler().postDelayed({
                 val cameraFragment = getCameraFragment()
                 cameraFragment.switchCameraTypeFrontBack()
+                isFront = !isFront
             }, 350)
         }
     }

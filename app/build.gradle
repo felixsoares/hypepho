@@ -35,4 +35,5 @@ dependencies {
     implementation 'com.squareup.picasso:picasso:2.71828'
     compile 'jp.wasabeef:picasso-transformations:2.2.1'
     compile 'jp.co.cyberagent.android.gpuimage:gpuimage-library:1.4.1'
+    compile 'com.github.zomato:androidphotofilters:1.0.1'
 }
