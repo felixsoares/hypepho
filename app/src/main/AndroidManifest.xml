@@ -13,7 +13,7 @@
         android:roundIcon="@mipmap/ic_launcher"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".MainActivity">
+        <activity android:name=".ui.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -25,7 +25,7 @@
             android:screenOrientation="portrait" />
 
         <provider
-            android:name=".GenericFileProvider"
+            android:name=".widget.GenericFileProvider"
             android:authorities="br.com.felix.hypepho.provider"
             android:exported="false"
             android:grantUriPermissions="true">
@@ -34,7 +34,7 @@
                 android:resource="@xml/provider_paths" />
         </provider>
 
-        <activity android:name=".ImageActivity" />
+        <activity android:name=".ui.ImageActivity" />
     </application>
 
 </manifest>

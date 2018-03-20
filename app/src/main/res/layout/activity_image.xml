@@ -10,7 +10,7 @@
         android:layout_height="match_parent"
         android:layout_centerInParent="true" />
 
-    <br.com.felix.hypepho.Progress
+    <br.com.felix.hypepho.widget.Progress
         android:id="@+id/progress"
         android:visibility="gone"
         android:layout_centerHorizontal="true"

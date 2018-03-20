@@ -30,10 +30,12 @@ dependencies {
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
 
     compile 'com.github.florent37:camerafragment:1.0.8'
+    compile 'org.jetbrains.kotlinx:kotlinx-coroutines-core:0.22.5'
+    compile 'org.jetbrains.kotlinx:kotlinx-coroutines-android:0.22.5'
     compile 'net.alhazmy13.ImageFilters:library:0.1.2-beta'
-
-    implementation 'com.squareup.picasso:picasso:2.71828'
-    compile 'jp.wasabeef:picasso-transformations:2.2.1'
-    compile 'jp.co.cyberagent.android.gpuimage:gpuimage-library:1.4.1'
-    compile 'com.github.zomato:androidphotofilters:1.0.1'
+}
+kotlin {
+    experimental {
+        coroutines "enable"
+    }
 }

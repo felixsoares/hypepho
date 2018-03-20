@@ -1,23 +1,26 @@
-package br.com.felix.hypepho
+package br.com.felix.hypepho.ui
 
-import android.content.Context
+import android.app.AlertDialog
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Matrix
 import android.os.Bundle
-import android.os.Handler
+import android.os.Environment
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
-import android.util.Log
 import android.view.View
 import android.view.Window
 import android.view.WindowManager
+import br.com.felix.hypepho.R
 import kotlinx.android.synthetic.main.activity_image.*
+import kotlinx.coroutines.experimental.android.UI
+import kotlinx.coroutines.experimental.async
+import kotlinx.coroutines.experimental.delay
+import kotlinx.coroutines.experimental.launch
 import net.alhazmy13.imagefilter.ImageFilter
 import java.io.File
-import java.util.*
-import android.os.Environment
 import java.io.FileOutputStream
+import java.util.*
 
 
 class ImageActivity : AppCompatActivity() {
@@ -41,16 +44,16 @@ class ImageActivity : AppCompatActivity() {
 
         download.setOnClickListener {
             progress.show()
-
-            Handler().postDelayed({
-                if (saveImage(mBitmap)) {
+            launch(UI) {
+                val success = async { savePhoto() }.await()
+                if (success) {
                     download.setImageDrawable(ContextCompat.getDrawable(applicationContext, R.drawable.success))
                     txtSuccess.visibility = View.VISIBLE
-
-                    progress.hide()
-                    finish()
+                    updateButtom()
+                } else {
+                    createDialog()
                 }
-            }, 1000)
+            }
         }
 
         if (intent.extras != null) {
@@ -61,18 +64,28 @@ class ImageActivity : AppCompatActivity() {
         }
     }
 
+    private suspend fun savePhoto(): Boolean {
+        delay(500)
+        return saveImage(mBitmap)
+    }
+
+    private suspend fun updateButtom() {
+        progress.hide()
+        delay(800)
+        finish()
+    }
+
     private fun configureImageView(file: File, isFront: Boolean) {
         val bitmap = BitmapFactory.decodeFile(file.path)
-        val first = ImageFilter.applyFilter(bitmap, ImageFilter.Filter.GAUSSIAN_BLUR)
+        val first = ImageFilter.applyFilter(bitmap, ImageFilter.Filter.SOFT_GLOW)
         mBitmap = rotateImage(ImageFilter.applyFilter(first, ImageFilter.Filter.LOMO), if (isFront) -90f else 90f)
         image.setImageBitmap(mBitmap)
     }
 
-    private fun saveImage(finalBitmap: Bitmap):Boolean {
+    private fun saveImage(finalBitmap: Bitmap): Boolean {
         val root = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).toString()
         val myDir = File(root + "/hypepho")
         myDir.mkdirs()
-        val generator = Random()
 
         val fileName = "${UUID.randomUUID()}.jpg"
         val file = File(myDir, fileName)
@@ -88,6 +101,20 @@ class ImageActivity : AppCompatActivity() {
             e.printStackTrace()
             false
         }
+    }
+
+    private fun createDialog() {
+        val builder = AlertDialog.Builder(this@ImageActivity)
+        builder.setMessage("Please restart the app and give me all permissions")
+                .setTitle("=(")
+
+        builder.setPositiveButton("ok", { dialog, _ ->
+            finish()
+            dialog.dismiss()
+        })
+
+        val dialog = builder.create()
+        dialog.show()
     }
 
     private fun rotateImage(src: Bitmap, degree: Float): Bitmap {

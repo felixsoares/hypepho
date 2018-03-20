@@ -1,11 +1,10 @@
-package br.com.felix.hypepho
+package br.com.felix.hypepho.ui
 
 import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
-import android.os.Environment
 import android.os.Handler
 import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
@@ -13,17 +12,22 @@ import android.support.v7.app.AppCompatActivity
 import android.view.Window
 import android.view.WindowManager
 import android.widget.Toast
+import br.com.felix.hypepho.R
 import com.github.florent37.camerafragment.CameraFragment
 import com.github.florent37.camerafragment.CameraFragmentApi
 import com.github.florent37.camerafragment.configuration.Configuration
 import com.github.florent37.camerafragment.listeners.CameraFragmentResultListener
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.coroutines.experimental.android.UI
+import kotlinx.coroutines.experimental.async
+import kotlinx.coroutines.experimental.delay
+import kotlinx.coroutines.experimental.launch
+import java.io.File
 import java.util.*
 
 class MainActivity : AppCompatActivity() {
 
-    private val REQUEST_PREVIEW_CODE = 1001
-
+    private lateinit var PATH: String
     private val FRAGMENT_TAG = "camera"
     private val CAMERA_REQUEST = 1888
     private var flashActive = false
@@ -35,19 +39,7 @@ class MainActivity : AppCompatActivity() {
         window.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN)
         setContentView(R.layout.activity_main)
 
-        val permissions = arrayOf(
-                Manifest.permission.CAMERA,
-                Manifest.permission.READ_EXTERNAL_STORAGE,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                Manifest.permission.ACCESS_COARSE_LOCATION,
-                Manifest.permission.ACCESS_FINE_LOCATION
-        )
-
-        ActivityCompat.requestPermissions(
-                this@MainActivity,
-                permissions,
-                CAMERA_REQUEST
-        )
+        requestPermissions()
 
         llFlash.setOnClickListener {
             Handler().postDelayed({
@@ -68,25 +60,16 @@ class MainActivity : AppCompatActivity() {
             val cameraFragment = getCameraFragment()
             cameraFragment.takePhotoOrCaptureVideo(object : CameraFragmentResultListener {
                 override fun onVideoRecorded(filePath: String?) {
-                    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+                    TODO("not implemented")
                 }
 
                 override fun onPhotoTaken(bytes: ByteArray?, filePath: String?) {
-                    progress.show()
-
-                    Handler().postDelayed({
-                        val bundle = Bundle()
-                        bundle.putString(ImageActivity.FILE_PATH, filePath)
-                        bundle.putBoolean(ImageActivity.PHOTO_FRONT, isFront)
-
-                        val intent = Intent(this@MainActivity, ImageActivity::class.java)
-                        intent.putExtras(bundle)
-                        startActivityForResult(intent, REQUEST_PREVIEW_CODE)
-
-                        progress.hide()
-                    }, 1000)
+                    launch(UI) {
+                        progress.show()
+                        async { callIntent(filePath!!) }.await()
+                    }
                 }
-            }, getExternalFilesDir(Environment.DIRECTORY_PICTURES).path + "/hypepho", UUID.randomUUID().toString())
+            }, PATH, UUID.randomUUID().toString())
         }
 
         llTurn.setOnClickListener {
@@ -96,6 +79,54 @@ class MainActivity : AppCompatActivity() {
                 isFront = !isFront
             }, 350)
         }
+
+        PATH = getExternalFilesDir(android.os.Environment.DIRECTORY_PICTURES).path + "/hypepho"
+
+        launch { deleteFiles(PATH) }
+    }
+
+    private fun requestPermissions() {
+        val permissions = arrayOf(
+                Manifest.permission.CAMERA,
+                Manifest.permission.READ_EXTERNAL_STORAGE,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                Manifest.permission.ACCESS_COARSE_LOCATION,
+                Manifest.permission.ACCESS_FINE_LOCATION
+        )
+
+        ActivityCompat.requestPermissions(
+                this@MainActivity,
+                permissions,
+                CAMERA_REQUEST
+        )
+    }
+
+    private fun deleteFiles(path: String) {
+        try {
+            val file = File(path)
+
+            if (file.exists()) {
+                val deleteCmd = "rm -r " + path
+                val runtime = Runtime.getRuntime()
+                runtime.exec(deleteCmd)
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
+    private suspend fun callIntent(filePath: String) {
+        delay(800)
+
+        val bundle = Bundle()
+        bundle.putString(ImageActivity.FILE_PATH, filePath)
+        bundle.putBoolean(ImageActivity.PHOTO_FRONT, isFront)
+
+        progress.hide()
+
+        val intent = Intent(this@MainActivity, ImageActivity::class.java)
+        intent.putExtras(bundle)
+        startActivity(intent)
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
@@ -105,7 +136,8 @@ class MainActivity : AppCompatActivity() {
                 if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     callCamera()
                 } else {
-                    Toast.makeText(this@MainActivity, "Sem permissão", Toast.LENGTH_LONG).show()
+                    Toast.makeText(this@MainActivity, "Please give me permissions", Toast.LENGTH_LONG).show()
+                    requestPermissions()
                 }
             }
         }

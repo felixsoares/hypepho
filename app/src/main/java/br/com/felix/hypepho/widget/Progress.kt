@@ -1,4 +1,4 @@
-package br.com.felix.hypepho
+package br.com.felix.hypepho.widget
 
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
@@ -10,6 +10,7 @@ import android.view.Gravity
 import android.view.View
 import android.widget.ImageView
 import android.widget.LinearLayout
+import br.com.felix.hypepho.R
 
 
 /**
