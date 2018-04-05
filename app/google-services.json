@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "176936082578",
+    "firebase_url": "https://dopecam-578c4.firebaseio.com",
+    "project_id": "dopecam-578c4",
+    "storage_bucket": "dopecam-578c4.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:176936082578:android:259026ca4c57e7f5",
+        "android_client_info": {
+          "package_name": "br.com.felix.hypepho"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "176936082578-l2dnht6svvtbk8r6a6bqk5ur9goq627j.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "br.com.felix.hypepho",
+            "certificate_hash": "9d5ebf69ad20406acfbf82d35c86a929a3e1b5f8"
+          }
+        },
+        {
+          "client_id": "176936082578-mck7i46r9k686a2cabk5cjvlp6k4b38b.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCnV1DMH2drQkJ9jRed8jhP7TfMMfopq1g"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "176936082578-mck7i46r9k686a2cabk5cjvlp6k4b38b.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
