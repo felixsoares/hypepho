@@ -152,9 +152,10 @@ class MainActivity : AppCompatActivity() {
                 .setMediaAction(Configuration.MEDIA_ACTION_PHOTO)
 
         val cameraFragment = CameraFragment.newInstance(builder.build())
+
         supportFragmentManager.beginTransaction()
                 .replace(R.id.content, cameraFragment, FRAGMENT_TAG)
-                .commit()
+                .commitAllowingStateLoss()
 
         cameraFragment.setResultListener(object : CameraFragmentResultListener {
             override fun onVideoRecorded(filePath: String) {
